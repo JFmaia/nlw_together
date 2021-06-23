@@ -68,7 +68,7 @@ class _HomePageState extends State<HomePage> {
               icon: Icon(Icons.home),
               color: AppColors.primary,
             ),
-            GestureDetector(
+            InkWell(
               onTap: () {
                 print("");
               },
