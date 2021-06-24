@@ -70,7 +70,7 @@ class _HomePageState extends State<HomePage> {
             ),
             InkWell(
               onTap: () {
-                print("");
+                Navigator.pushNamed(context, "/barcode_scanner");
               },
               child: Container(
                 width: 56,
