@@ -13,7 +13,7 @@ class BarcodeScannerController {
 
   set status(BarcodeScannerStatus status) => statusNotifier.value = status;
 
-  final barcodeScanner = GoogleMlKit.vision.barcodeScanner();
+  var barcodeScanner = GoogleMlKit.vision.barcodeScanner();
 
   InputImage? imagePicker;
 
@@ -39,6 +39,35 @@ class BarcodeScannerController {
     }
   }
 
+  //Depois da imagem se lida pelo GOOGLEMLKIT, a imagem parar aqui para ser lida e mandada pra tela de cadastro de boleto.
+  Future<void> scannerBarCode(InputImage inputImage) async {
+    try {
+      final barcodes = await barcodeScanner.processImage(inputImage);
+
+      var barcode;
+      for (Barcode item in barcodes) {
+        barcode = item.value.displayValue;
+      }
+
+      if (barcode != null && status.barcode.isEmpty) {
+        status = BarcodeScannerStatus.barcode(barcode);
+        cameraController!.dispose();
+        await barcodeScanner.close();
+      }
+
+      return;
+    } catch (e) {
+      print("ERRO DA LEITURA $e");
+    }
+  }
+
+  //Pegando imagem da galeria pra ler o codigo de barra se houver.
+  void scanWithImagePicker() async {
+    final response = await ImagePicker().getImage(source: ImageSource.gallery);
+    final inputImage = InputImage.fromFilePath(response!.path);
+    scannerBarCode(inputImage);
+  }
+
   //Aqui estar sendo a funcionalidade da camera onde vai ser chamado a leitura.
   void scanWithCamera() {
     status = BarcodeScannerStatus.available();
@@ -48,13 +77,6 @@ class BarcodeScannerController {
           status = BarcodeScannerStatus.error("Timeout de leitura de boleto");
       },
     );
-  }
-
-  //Pegando imagem da galeria pra ler o codigo de barra se houver.
-  void scanWithImagePicker() async {
-    final response = await ImagePicker().getImage(source: ImageSource.gallery);
-    final inputImage = InputImage.fromFilePath(response!.path);
-    scannerBarCode(inputImage);
   }
 
   //Realizando leitura do codigo de barra.
@@ -102,33 +124,13 @@ class BarcodeScannerController {
               final inputImage = InputImage.fromBytes(
                   bytes: bytes, inputImageData: inputImageData);
               //linhas adicionadas.
-              await scannerBarCode(inputImage);
+              scannerBarCode(inputImage);
             } catch (e) {
               print(e);
             }
           }
         },
       );
-  }
-
-  //Depois da imagem se lida pelo GOOGLEMLKIT, a imagem parar aqui para ser lida e mandada pra tela de cadastro de boleto.
-  Future<void> scannerBarCode(InputImage inputImage) async {
-    try {
-      final barcodes = await barcodeScanner.processImage(inputImage);
-      var barcode;
-      for (Barcode item in barcodes) {
-        barcode = item.value.displayValue;
-      }
-
-      if (barcode != null && status.barcode.isEmpty) {
-        status = BarcodeScannerStatus.barcode(barcode);
-        cameraController!.dispose();
-        await barcodeScanner.close();
-      }
-      return;
-    } catch (e) {
-      print("ERRO DA LEITURA $e");
-    }
   }
 
   void dispose() {

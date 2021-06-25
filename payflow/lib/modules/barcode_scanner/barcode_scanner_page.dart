@@ -53,53 +53,61 @@ class _BarcodeScannerState extends State<BarcodeScanner> {
           RotatedBox(
             quarterTurns: 1,
             child: Scaffold(
-                backgroundColor: Colors.transparent,
-                appBar: AppBar(
-                  backgroundColor: Colors.black,
-                  title: Text(
-                    "Escaneie o código de barra do boleto",
-                    style: AppTextStyles.buttonBackground,
-                  ),
-                  centerTitle: true,
-                  leading: BackButton(
-                    color: AppColors.background,
-                  ),
+              backgroundColor: Colors.transparent,
+              appBar: AppBar(
+                backgroundColor: Colors.black,
+                title: Text(
+                  "Escaneie o código de barra do boleto",
+                  style: AppTextStyles.buttonBackground,
                 ),
-                body: Column(
-                  children: [
-                    Expanded(
-                      child: Container(color: Colors.black),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Container(color: Colors.transparent),
-                    ),
-                    Expanded(
-                      child: Container(color: Colors.black),
-                    ),
-                  ],
+                centerTitle: true,
+                leading: BackButton(
+                  color: AppColors.background,
                 ),
-                bottomNavigationBar: SetLabelButtons(
-                  primaryLabel: "Inserir código do boleto",
-                  secondaryLabel: "Adicionar da galeria",
-                  primaryOnPressed: () {},
-                  secondaryOnPressed: () {},
-                )),
+              ),
+              body: Column(
+                children: [
+                  Expanded(
+                    child: Container(color: Colors.black),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Container(color: Colors.transparent),
+                  ),
+                  Expanded(
+                    child: Container(color: Colors.black),
+                  ),
+                ],
+              ),
+              bottomNavigationBar: SetLabelButtons(
+                primaryLabel: "Inserir código do boleto",
+                primaryOnPressed: () {
+                  Navigator.pushReplacementNamed(context, "/insert_boleto");
+                },
+                secondaryLabel: "Adicionar da galeria",
+                secondaryOnPressed: () {},
+              ),
+            ),
           ),
           ValueListenableBuilder<BarcodeScannerStatus>(
             valueListenable: controller.statusNotifier,
             builder: (_, status, __) {
               if (status.hasError) {
-                return BottomSheetWidget(
-                  title: "Não foi possivel indentificar um código de barra.",
-                  subtitle:
-                      "Tente scanear novamente ou digite o código de seu boleto.",
-                  primaryLabel: "Escanear novamente",
-                  primaryOnPressed: () {
-                    controller.getAvalibleCamera();
-                  },
-                  secondaryLabel: "Digitar código",
-                  secondaryOnPressed: () {},
+                return Align(
+                  alignment: Alignment.bottomLeft,
+                  child: BottomSheetWidget(
+                    primaryLabel: "Escanear novamente",
+                    primaryOnPressed: () {
+                      controller.scanWithCamera();
+                    },
+                    secondaryLabel: "Digitar código",
+                    secondaryOnPressed: () {
+                      Navigator.pushReplacementNamed(context, "/insert_boleto");
+                    },
+                    title: "Não foi possivel indentificar um código de barra.",
+                    subtitle:
+                        "Tente scanear novamente ou digite o código de seu boleto.",
+                  ),
                 );
               } else {
                 return Container();
